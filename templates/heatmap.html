@@ -1,0 +1,144 @@
+<html>
+
+<head>
+  <style>
+    html,
+    body,
+    #map-canvas {
+      height: 100%;
+      margin: 0px;
+      padding: 0px
+    }
+
+    #panel {
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      margin-left: -180px;
+      z-index: 5;
+      background-color: #fff;
+      padding: 5px;
+      border: 1px solid #999;
+    }
+  </style>
+  <script type="text/javascript"
+    src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>
+  <script>
+    const username = window.location.href.split('/')[4];
+    let markers, heatmap, map;
+
+    async function getBinData() {
+      const myLatlng = new google.maps.LatLng(39.9334, 32.8597); // ANKARA
+
+      let map_data = [];
+      let infowindow = new google.maps.InfoWindow();
+
+      map = new google.maps.Map(document.getElementById('map-canvas'), {
+        center: myLatlng,
+        zoom: 3,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+      });
+
+      marekrs = await fetch(`${document.location.origin}/api/profile_locations/${username}`)
+        .then(response => response.json())
+        .then(
+          _json =>
+            _json.map(
+              item => {
+                if (!isNaN(parseInt(item.latitude))) {
+                  map_data.push(new google.maps.LatLng(item.latitude, item.longitude));
+                }
+                marker = new google.maps.Marker({
+                  position: new google.maps.LatLng(item.latitude, item.longitude),
+                  map: map,
+                });
+
+                google.maps.event.addListener(marker, 'click', (function (marker) {
+                  return function () {
+                    let content = '<html>';
+                    _json.filter(x => x.location == item.location).forEach(function (_data) {
+                      content +=
+                        `
+                        <br>
+                        <a>${_data.location}</a>
+                        <br>
+                        <a target="_blank" rel="noopener noreferrer" href="http://instagram.com/p/${item.link}" >
+                        <img src="${_data.source}" width = "150">
+                         `
+                    });
+                    content += '</html>';
+                    infowindow.setContent(content);
+                    infowindow.open(map, marker);
+                  };
+                })(marker));
+                return marker
+              }
+            )
+        )
+        heatmap = new google.maps.visualization.HeatmapLayer({
+          data: map_data
+        });
+        heatmap.setMap(map);
+      }
+
+    function changeRadius() {
+      heatmap.set('radius', heatmap.get('radius') ? null : 35);
+    }
+
+    function changeOpacity() {
+      heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
+    }
+
+    function toggleMarkers() {
+      let arg = map;
+      if (markers[0].getMap() != null) {
+        arg = null;
+      }
+      markers.forEach(marker => marker.setMap(arg))
+    }
+
+    function toggleHeatmap() {
+      if (heatmap.getMap() == null) {
+        heatmap.setMap(map);
+      } else {
+        heatmap.setMap(null);
+      }
+    }
+
+    function changeGradient() {
+      const gradient = [
+        'rgba(0, 255, 255, 0)',
+        'rgba(0, 255, 255, 1)',
+        'rgba(0, 191, 255, 1)',
+        'rgba(0, 127, 255, 1)',
+        'rgba(0, 63, 255, 1)',
+        'rgba(0, 0, 255, 1)',
+        'rgba(0, 0, 223, 1)',
+        'rgba(0, 0, 191, 1)',
+        'rgba(0, 0, 159, 1)',
+        'rgba(0, 0, 127, 1)',
+        'rgba(63, 0, 91, 1)',
+        'rgba(127, 0, 63, 1)',
+        'rgba(191, 0, 31, 1)',
+        'rgba(255, 0, 0, 1)'
+      ];
+
+      heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+    }
+    google.maps.event.addDomListener(window, 'load', getBinData);
+  </script>
+</head>
+<div id="panel">
+  <button onclick="toggleHeatmap()">Toggle Heatmap</button>
+  <button onclick="toggleMarkers()">Toggle Markers</button>
+  <button onclick="changeGradient()">Change gradient</button>
+  <button onclick="changeRadius()">Change radius</button>
+  <button onclick="changeOpacity()">Change opacity</button>
+</div>
+<div id="map-canvas"></div>
+<div class="wrapper">
+  <div id="map-canvas">
+  </div>
+</div>
+
+</html>

@@ -1,0 +1,44 @@
+<html>
+<head>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .button-container button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .button-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <button><a href="/followings/zuck">Get Followings</a></button>
+        <button><a href="/followers/zuck">Get Followers</a></button>
+        <button><a href="/match/zuck">Get Matches</a></button>
+        <button><a href="/location-people/<location_id>">Get People from Location</a></button>
+        <button><a href="/heatmap/zuck">Generate Heatmap</a></button>
+        <button><a href="/location/<location_id>">Get Photos from Location</a></button>
+    </div>
+</body>
+</html>
